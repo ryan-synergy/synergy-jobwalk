@@ -6,176 +6,372 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Job Walk">
-  <title>Synergy Job Walk</title>
+  <title>Synergy — Job Walk</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
-      --primary: #0f172a;
-      --accent: #e8561e;
-      --accent-lt: #fff2ed;
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --border: #e2e8f0;
-      --text: #1e293b;
-      --muted: #64748b;
-      --danger: #ef4444;
-      --radius: 12px;
-      --nav-h: 60px;
-      --safe-b: env(safe-area-inset-bottom, 0px);
-      --safe-t: env(safe-area-inset-top, 0px);
+      --ink:      #0e1117;
+      --ink-2:    #1c2333;
+      --ink-3:    #374151;
+      --ink-4:    #6b7280;
+      --ink-5:    #9ca3af;
+      --line:     #e5e7eb;
+      --line-2:   #f3f4f6;
+      --bg:       #f2f3f6;
+      --surface:  #ffffff;
+      --brand:    #d9551a;
+      --brand-lt: #fef3ee;
+      --green:    #16a34a;
+      --blue:     #1d4ed8;
+      --danger:   #dc2626;
+      --r:        10px;
+      --safe-t:   env(safe-area-inset-top, 0px);
+      --safe-b:   env(safe-area-inset-bottom, 0px);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100dvh;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
     #app { max-width: 640px; margin: 0 auto; min-height: 100dvh; }
 
-    /* ── HEADER ── */
+    /* ─── HEADER ─── */
     .hdr {
-      background: var(--primary); color: #fff;
-      padding: 14px 18px; padding-top: calc(14px + var(--safe-t));
+      background: var(--ink);
+      padding: 13px 18px;
+      padding-top: calc(13px + var(--safe-t));
       display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 200;
+      position: sticky; top: 0; z-index: 300;
+      border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    .hdr h1 { font-size: 17px; font-weight: 700; }
-    .hdr-btn { background: none; border: none; color: var(--accent); font-size: 15px; font-weight: 600; cursor: pointer; padding: 8px; margin: -8px; font-family: inherit; }
+    .hdr-title { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: -.01em; }
+    .hdr-btn {
+      background: none; border: none; color: var(--brand);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      padding: 9px; margin: -9px; font-family: inherit; letter-spacing: -.01em;
+    }
+    .hdr-spacer { width: 60px; }
 
-    /* ── BOTTOM NAV ── */
+    /* ─── BOTTOM NAV ─── */
     .bnav {
       position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 640px;
-      background: #fff; border-top: 1px solid var(--border);
-      display: flex; padding-bottom: var(--safe-b); z-index: 200;
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+      display: flex;
+      padding-bottom: var(--safe-b);
+      z-index: 300;
     }
     .bnav-tab {
       flex: 1; display: flex; flex-direction: column; align-items: center;
-      padding: 8px 2px; border: none; background: none; color: var(--muted);
-      font-size: 10px; gap: 2px; cursor: pointer; font-family: inherit;
+      padding: 9px 4px 7px; border: none; background: none;
+      color: var(--ink-5); font-size: 9.5px; font-weight: 600;
+      letter-spacing: .03em; text-transform: uppercase;
+      gap: 4px; cursor: pointer; font-family: inherit;
+      transition: color .15s;
     }
-    .bnav-tab.on { color: var(--accent); }
-    .bnav-tab .ni { font-size: 19px; line-height: 1; }
+    .bnav-tab.on { color: var(--brand); }
+    .bnav-tab svg { width: 20px; height: 20px; }
 
-    /* ── CONTENT ── */
-    .content { padding: 14px; padding-bottom: calc(var(--nav-h) + var(--safe-b) + 14px); }
+    /* ─── CONTENT ─── */
+    .content {
+      padding: 14px;
+      padding-bottom: calc(62px + var(--safe-b) + 14px);
+    }
 
-    /* ── CARD ── */
-    .card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
-    .card-ttl { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 14px; }
+    /* ─── CARDS ─── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--r);
+      border: 1px solid var(--line);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .card-hd {
+      padding: 13px 16px 0;
+      font-size: 10.5px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .07em;
+      color: var(--ink-4);
+    }
+    .card-body { padding: 14px 16px 16px; }
+    .card-body.no-top { padding-top: 10px; }
 
-    /* ── FIELDS ── */
-    .f { margin-bottom: 16px; }
+    /* ─── FIELDS ─── */
+    .f { margin-bottom: 18px; }
     .f:last-child { margin-bottom: 0; }
-    .f label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 7px; }
-    .f input[type=text], .f input[type=number], .f textarea, .f select {
-      width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 8px;
-      font-size: 16px; font-family: inherit; color: var(--text); background: #fff;
-      -webkit-appearance: none; transition: border-color .15s;
+    .f > label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: var(--ink-3); margin-bottom: 8px; letter-spacing: -.01em;
     }
-    .f input:focus, .f textarea:focus { outline: none; border-color: var(--accent); }
-    .f textarea { resize: none; height: 76px; line-height: 1.4; }
-    .f .row2 { display: flex; gap: 8px; }
-    .f .row2 input { flex: 1; }
+    input[type=text], input[type=number], textarea {
+      width: 100%; padding: 11px 13px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      font-size: 15px; font-family: inherit;
+      color: var(--ink); background: var(--surface);
+      -webkit-appearance: none;
+      transition: border-color .15s;
+      line-height: 1.4;
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--ink-3); }
+    textarea { resize: none; height: 78px; }
+    .row2 { display: flex; gap: 8px; }
+    .row2 input { flex: 1; }
+    input[type=number] { -moz-appearance: textfield; }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 
-    /* ── CHIPS ── */
-    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    /* ─── CHIPS ─── */
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
     .chip {
-      padding: 8px 13px; border-radius: 20px; border: 1.5px solid var(--border);
-      background: #fff; font-size: 14px; color: var(--text); cursor: pointer;
-      font-family: inherit; white-space: nowrap; transition: all .12s; line-height: 1;
+      padding: 7px 13px;
+      border-radius: 6px;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      font-size: 13.5px; font-weight: 500;
+      color: var(--ink-3);
+      cursor: pointer; font-family: inherit;
+      transition: all .12s; white-space: nowrap; line-height: 1;
     }
-    .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    .chip.on {
+      background: var(--ink); border-color: var(--ink);
+      color: #fff; font-weight: 600;
+    }
 
-    /* ── COUNTER ── */
-    .ctr { display: flex; align-items: stretch; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; width: fit-content; }
-    .ctr button { width: 46px; border: none; background: #f8fafc; font-size: 22px; font-weight: 700; color: var(--accent); cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; }
-    .ctr button:active { background: var(--accent-lt); }
-    .ctr input { width: 58px; text-align: center; border: none; border-left: 1.5px solid var(--border); border-right: 1.5px solid var(--border); font-size: 18px; font-weight: 700; color: var(--text); padding: 10px 0; font-family: inherit; }
-    .ctr input:focus { outline: none; }
+    /* ─── COUNTER ─── */
+    .ctr {
+      display: inline-flex; align-items: stretch;
+      border: 1.5px solid var(--line); border-radius: 8px;
+      overflow: hidden; background: var(--surface);
+    }
+    .ctr-btn {
+      width: 44px; border: none; background: var(--line-2);
+      font-size: 20px; font-weight: 400; color: var(--ink-3);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .1s; user-select: none;
+    }
+    .ctr-btn:active { background: var(--line); }
+    .ctr input {
+      width: 54px; text-align: center;
+      border: none !important;
+      border-left: 1.5px solid var(--line) !important;
+      border-right: 1.5px solid var(--line) !important;
+      border-radius: 0 !important;
+      font-size: 17px; font-weight: 700;
+      color: var(--ink); padding: 9px 0;
+    }
+    .ctr input:focus { border-color: var(--line) !important; }
 
-    /* ── TOGGLE ── */
-    .tog-row { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
-    .tog-lbl { font-size: 15px; font-weight: 500; }
-    .tog { width: 48px; height: 28px; background: #cbd5e1; border-radius: 14px; position: relative; cursor: pointer; border: none; transition: background .2s; flex-shrink: 0; }
-    .tog.on { background: var(--accent); }
-    .tog::after { content: ''; width: 22px; height: 22px; background: #fff; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+    /* ─── TOGGLE ─── */
+    .tog-row {
+      display: flex; align-items: center;
+      justify-content: space-between; min-height: 42px;
+    }
+    .tog-lbl { font-size: 15px; font-weight: 500; color: var(--ink); }
+    .tog {
+      width: 46px; height: 26px;
+      background: #d1d5db; border-radius: 13px;
+      position: relative; cursor: pointer; border: none;
+      transition: background .2s; flex-shrink: 0;
+    }
+    .tog.on { background: var(--ink); }
+    .tog::after {
+      content: ''; width: 20px; height: 20px;
+      background: #fff; border-radius: 50%;
+      position: absolute; top: 3px; left: 3px;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
     .tog.on::after { transform: translateX(20px); }
 
-    /* ── ROOM LIST ── */
+    /* ─── DIVIDER ─── */
+    .div { height: 1px; background: var(--line); margin: 2px 0; }
+
+    /* ─── ROOM LIST ─── */
     .room-row {
-      background: #fff; border: 1.5px solid var(--border); border-radius: 10px;
-      padding: 13px 15px; margin-bottom: 9px;
-      display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--r); padding: 13px 14px;
+      margin-bottom: 8px; display: flex; align-items: center;
+      justify-content: space-between; cursor: pointer;
+      transition: border-color .12s;
     }
-    .room-row:active { border-color: var(--accent); }
-    .room-row-name { font-size: 16px; font-weight: 600; }
-    .room-row-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
-    .room-del { background: none; border: none; color: var(--danger); font-size: 18px; cursor: pointer; padding: 8px; margin: -8px -8px -8px 4px; }
+    .room-row:active { border-color: var(--ink-3); }
+    .room-name { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+    .room-sub { font-size: 12.5px; color: var(--ink-4); margin-top: 3px; }
+    .room-row-right { display: flex; align-items: center; gap: 4px; }
+    .room-del {
+      background: none; border: none; color: #d1d5db;
+      font-size: 16px; cursor: pointer; padding: 8px; margin: -8px;
+      transition: color .15s;
+    }
+    .room-del:hover, .room-del:active { color: var(--danger); }
+    .room-chev { color: var(--ink-5); font-size: 18px; font-weight: 300; margin-left: 6px; }
 
+    /* ─── ADD ROOM BUTTON ─── */
     .add-btn {
-      width: 100%; padding: 15px; border: 2px dashed var(--accent);
-      border-radius: 10px; background: var(--accent-lt); color: var(--accent);
-      font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit;
-      display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;
+      width: 100%; padding: 14px;
+      border: 1.5px dashed var(--line);
+      border-radius: var(--r);
+      background: transparent;
+      color: var(--ink-4); font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      letter-spacing: -.01em; transition: all .15s; margin-top: 4px;
     }
+    .add-btn:hover { border-color: var(--ink-3); color: var(--ink-3); }
+    .add-btn:active { background: var(--line-2); }
 
-    /* ── HOME ── */
-    .home-top { background: var(--primary); padding: 36px 22px 28px; padding-top: calc(36px + var(--safe-t)); }
-    .home-logo { font-size: 26px; font-weight: 800; color: #fff; }
-    .home-logo span { color: var(--accent); }
-    .home-sub { color: #94a3b8; font-size: 13px; margin-top: 3px; }
+    /* ─── HOME ─── */
+    .home-top {
+      background: var(--ink);
+      padding: 40px 22px 30px;
+      padding-top: calc(40px + var(--safe-t));
+    }
+    .home-mark {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 4px;
+    }
+    .home-s {
+      width: 36px; height: 36px;
+      background: var(--brand); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -.03em;
+      flex-shrink: 0;
+    }
+    .home-wordmark { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -.02em; }
+    .home-sub { font-size: 13px; color: #6b7280; margin-top: 2px; letter-spacing: -.01em; }
+    .home-date { font-size: 12px; color: #4b5563; margin-top: 14px; text-transform: uppercase; letter-spacing: .06em; }
     .home-content { padding: 18px 14px; }
 
-    .new-btn { width: 100%; padding: 17px; background: var(--accent); color: #fff; border: none; border-radius: 12px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; margin-bottom: 22px; }
+    .new-btn {
+      width: 100%; padding: 15px;
+      background: var(--brand); color: #fff;
+      border: none; border-radius: var(--r);
+      font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      letter-spacing: -.01em; margin-bottom: 22px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .new-btn:active { opacity: .9; }
 
-    .job-row { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 9px; border: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
-    .job-row:active { border-color: var(--accent); }
-    .job-name { font-size: 16px; font-weight: 700; }
-    .job-meta { font-size: 13px; color: var(--muted); margin-top: 3px; }
-    .job-del { background: none; border: none; color: var(--danger); font-size: 20px; cursor: pointer; padding: 8px; margin: -8px; }
+    .sec-lbl {
+      font-size: 10.5px; font-weight: 700; color: var(--ink-4);
+      text-transform: uppercase; letter-spacing: .07em;
+      padding: 0 2px 10px;
+    }
 
-    .sec-lbl { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; padding: 6px 0 8px; }
+    .job-row {
+      background: var(--surface); border-radius: var(--r);
+      padding: 14px 16px; margin-bottom: 8px;
+      border: 1px solid var(--line); cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: border-color .12s;
+    }
+    .job-row:active { border-color: var(--ink-3); }
+    .job-name { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+    .job-meta { font-size: 12.5px; color: var(--ink-4); margin-top: 3px; }
+    .job-del {
+      background: none; border: none; color: #d1d5db;
+      font-size: 17px; cursor: pointer; padding: 8px; margin: -8px;
+      transition: color .15s;
+    }
+    .job-del:hover { color: var(--danger); }
 
-    /* ── ROOM PICKER ── */
-    .rt-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px; }
-    .rt-btn { padding: 15px 6px; border: 2px solid var(--border); border-radius: 10px; background: #fff; text-align: center; cursor: pointer; font-family: inherit; transition: all .12s; }
-    .rt-btn:active { border-color: var(--accent); background: var(--accent-lt); }
-    .rt-icon { font-size: 26px; display: block; }
-    .rt-lbl { font-size: 11px; font-weight: 600; color: var(--text); display: block; margin-top: 5px; }
+    /* ─── ROOM PICKER ─── */
+    .pick-list { padding: 0 16px; }
+    .pick-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; cursor: pointer;
+      border-bottom: 1px solid var(--line);
+      transition: opacity .1s;
+    }
+    .pick-row:last-child { border-bottom: none; }
+    .pick-row:active { opacity: .6; }
+    .pick-name { font-size: 15px; font-weight: 500; color: var(--ink); }
+    .pick-name.custom { color: var(--brand); font-weight: 600; }
+    .pick-chev { color: var(--line); font-size: 18px; }
+    .pick-group {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--ink-5);
+      padding: 16px 16px 6px; background: var(--line-2);
+      border-top: 1px solid var(--line);
+    }
+    .pick-group:first-child { border-top: none; }
 
-    /* ── EXPORT ── */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px; margin-bottom: 14px; }
-    .stat { background: var(--accent-lt); border-radius: 10px; padding: 13px 8px; text-align: center; }
-    .stat-n { font-size: 26px; font-weight: 800; color: var(--accent); line-height: 1; }
-    .stat-l { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 3px; }
-    .exp-btn { width: 100%; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; font-family: inherit; margin-bottom: 9px; display: flex; align-items: center; justify-content: center; gap: 9px; }
-    .exp-xl { background: #16a34a; color: #fff; }
-    .exp-js { background: #2563eb; color: #fff; }
+    /* ─── EXPORT STATS ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+    .stat-box { background: var(--line-2); border-radius: 8px; padding: 13px 10px; text-align: center; border: 1px solid var(--line); }
+    .stat-n { font-size: 26px; font-weight: 800; color: var(--ink); line-height: 1; letter-spacing: -.02em; }
+    .stat-l { font-size: 10.5px; color: var(--ink-4); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-top: 4px; }
 
-    /* ── MISC ── */
-    .div { height: 1px; background: var(--border); margin: 14px 0; }
-    .del-row { display: flex; justify-content: center; padding: 6px 0 10px; }
-    .del-lnk { background: none; border: none; color: var(--danger); font-size: 14px; cursor: pointer; padding: 8px; font-family: inherit; }
-    .empty { text-align: center; padding: 44px 20px; }
-    .empty-ic { font-size: 46px; }
-    .empty-tx { font-size: 15px; color: var(--muted); margin-top: 10px; }
-    .screen { animation: fi .18s ease; }
-    @keyframes fi { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .exp-btn {
+      width: 100%; padding: 14px; border-radius: var(--r);
+      font-size: 15px; font-weight: 700; border: none;
+      cursor: pointer; font-family: inherit; margin-bottom: 8px;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      letter-spacing: -.01em;
+    }
+    .exp-xl { background: var(--green); color: #fff; }
+    .exp-js { background: var(--blue); color: #fff; }
+    .exp-btn:active { opacity: .9; }
+
+    /* ─── EMPTY ─── */
+    .empty { text-align: center; padding: 52px 24px; }
+    .empty-line { width: 32px; height: 2px; background: var(--line); margin: 0 auto 16px; }
+    .empty-tx { font-size: 14px; color: var(--ink-5); }
+
+    /* ─── DELETE ─── */
+    .del-row { display: flex; justify-content: center; padding: 8px 0 12px; }
+    .del-lnk {
+      background: none; border: none; color: var(--danger);
+      font-size: 13.5px; cursor: pointer; padding: 8px 16px;
+      font-family: inherit; font-weight: 500;
+    }
+
+    /* ─── SCREEN ANIM ─── */
+    .screen { animation: fi .16s ease; }
+    @keyframes fi { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── BADGE ─── */
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-weight: 700; letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .badge-orange { background: var(--brand-lt); color: var(--brand); }
   </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-// ═══════════════════════════════════════════
-//  STATE & STORAGE
-// ═══════════════════════════════════════════
-const SK = 'syng_jw_v1';
+// ─── SVG ICONS ───
+const IC = {
+  client: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/></svg>`,
+  rooms:  `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>`,
+  systems:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="2.2" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="2.2" fill="currentColor" stroke="none"/></svg>`,
+  network:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5C6.8 10.4 9.3 9.2 12 9.2s5.2 1.2 7 3.3"/><path d="M1.5 8.8C4.5 5.5 8.1 3.5 12 3.5s7.5 2 10.5 5.3"/><path d="M8.5 16.2c.9-1.1 2.1-1.8 3.5-1.8s2.6.7 3.5 1.8"/><circle cx="12" cy="20.5" r="1.5" fill="currentColor" stroke="none"/></svg>`,
+  cameras:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+  export: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
+  plus:   `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  arrow:  `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`,
+  upload: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
+};
+
+// ─── STATE & STORAGE ───
+const SK = 'syng_jw_v2';
 let S = { screen:'home', tab:'client', jobs:[], jid:null, rid:null, room:null };
 
-function persist() {
-  localStorage.setItem(SK, JSON.stringify({ jobs:S.jobs, jid:S.jid }));
-}
+function persist() { localStorage.setItem(SK, JSON.stringify({ jobs:S.jobs, jid:S.jid })); }
 function hydrate() {
   try { const d=JSON.parse(localStorage.getItem(SK)||'{}'); if(d.jobs) S.jobs=d.jobs; if(d.jid) S.jid=d.jid; } catch(e){}
 }
-function uid() { return (crypto.randomUUID?.() || Math.random().toString(36).slice(2)+Date.now().toString(36)); }
+function uid() { return crypto.randomUUID?.() || Math.random().toString(36).slice(2)+Date.now().toString(36); }
 function job() { return S.jobs.find(j=>j.id===S.jid); }
 
 function mkJob() {
@@ -199,97 +395,55 @@ function mkRoom(name, custom) {
     avType:'',
     tv:{ size:'',customSize:'',wallW:'',wallH:'',mountType:'' },
     audio:{ type:'',surroundConfig:'' },
-    theater:{ displayType:'',screenType:'',blackoutShades:false },
+    theater:{ displayType:'',screenType:'',blackoutShades:null },
     gearLocation:'', sourceDevice:'',
     c4Remote:null, lightingKeypad:null, motorizedShades:'',
     ceilingHeight:'', dataDrops:null, notes:''
   };
 }
 
-// ═══════════════════════════════════════════
-//  NAVIGATION
-// ═══════════════════════════════════════════
+// ─── NAVIGATION ───
 function go(screen, tab) { S.screen=screen; if(tab) S.tab=tab; render(); window.scrollTo(0,0); }
 function tab(t) { S.tab=t; render(); window.scrollTo(0,0); }
 
-// ═══════════════════════════════════════════
-//  GENERIC INPUT HANDLERS
-// ═══════════════════════════════════════════
-function setPath(obj, path, val) {
-  const parts=path.split('.'); let o=obj;
-  for(let i=0;i<parts.length-1;i++) o=o[parts[i]];
-  o[parts[parts.length-1]]=val;
-}
-function getPath(obj, path) {
-  return path.split('.').reduce((o,k)=>o?.[k], obj);
-}
+// ─── DATA HELPERS ───
+function setPath(obj,path,val) { const p=path.split('.'); let o=obj; for(let i=0;i<p.length-1;i++) o=o[p[i]]; o[p[p.length-1]]=val; }
+function getPath(obj,path) { return path.split('.').reduce((o,k)=>o?.[k],obj); }
 
-// Job-level inputs
-function jInput(el, path) { setPath(job(), path, el.value); persist(); }
-function jChip(el, path, multi) {
-  const v=el.dataset.value, j=job(), cur=getPath(j,path);
-  if(multi) {
-    const arr=cur||[]; const idx=arr.indexOf(v);
-    idx>=0 ? arr.splice(idx,1) : arr.push(v);
-    setPath(j,path,arr);
-  } else { setPath(j,path,cur===v?'':v); }
-  el.closest('.chips').querySelectorAll('.chip').forEach(c=>{
-    const cv=c.dataset.value, nv=getPath(j,path);
-    c.classList.toggle('on', multi ? (nv||[]).includes(cv) : nv===cv);
-  });
+// ─── JOB HANDLERS ───
+function jInput(el,path) { setPath(job(),path,el.value); persist(); }
+function jChip(el,path,multi) {
+  const v=el.dataset.value,j=job(),cur=getPath(j,path);
+  if(multi) { const a=cur||[]; a.includes(v)?a.splice(a.indexOf(v),1):a.push(v); setPath(j,path,a); }
+  else { setPath(j,path,cur===v?'':v); }
+  const nv=getPath(j,path);
+  el.closest('.chips').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',multi?(nv||[]).includes(c.dataset.value):nv===c.dataset.value));
   persist();
-  // Re-render outdoor section if landscape audio toggled via chip
   if(path==='outdoor.landscapeAudio') render();
 }
-function jToggle(el, path) {
-  el.classList.toggle('on');
-  setPath(job(), path, el.classList.contains('on'));
-  persist();
-  if(path.startsWith('outdoor.')) render();
-}
-function jCtr(el, path, d) {
-  const j=job(), cur=getPath(j,path)||0, nv=Math.max(0,cur+d);
-  setPath(j,path,nv);
-  // Update the input next to this button
-  const inp = d>0 ? el.previousElementSibling : el.nextElementSibling;
-  if(inp && inp.tagName==='INPUT') inp.value=nv;
-  persist();
-}
-function jCtrSet(el, path) {
-  setPath(job(), path, Math.max(0, parseInt(el.value)||0));
-  persist();
-}
+function jToggle(el,path) { el.classList.toggle('on'); setPath(job(),path,el.classList.contains('on')); persist(); if(path.startsWith('outdoor.')) render(); }
+function jCtr(el,path,d) { const j=job(),nv=Math.max(0,(getPath(j,path)||0)+d); setPath(j,path,nv); const inp=d>0?el.previousElementSibling:el.nextElementSibling; if(inp?.tagName==='INPUT') inp.value=nv; persist(); }
+function jCtrSet(el,path) { setPath(job(),path,Math.max(0,parseInt(el.value)||0)); persist(); }
 
-// Room-level inputs
-function rInput(el, path) { setPath(S.room, path, el.value); }
-function rChip(el, path, multi) {
-  const v=el.dataset.value, r=S.room, cur=getPath(r,path);
-  if(multi) {
-    const arr=cur||[]; const idx=arr.indexOf(v);
-    idx>=0 ? arr.splice(idx,1) : arr.push(v);
-    setPath(r,path,arr);
-  } else { setPath(r,path,cur===v?'':v); }
-  el.closest('.chips').querySelectorAll('.chip').forEach(c=>{
-    const cv=c.dataset.value, nv=getPath(r,path);
-    c.classList.toggle('on', multi ? (nv||[]).includes(cv) : nv===cv);
-  });
-  // avType change = re-render to show/hide sections
-  if(path==='avType') { S.room.tv.present=['tv_only','tv_stereo','tv_surround'].includes(v); render(); }
+// ─── ROOM HANDLERS ───
+function rInput(el,path) { setPath(S.room,path,el.value); }
+function rChip(el,path,multi) {
+  const v=el.dataset.value,r=S.room,cur=getPath(r,path);
+  if(multi) { const a=cur||[]; a.includes(v)?a.splice(a.indexOf(v),1):a.push(v); setPath(r,path,a); }
+  else { setPath(r,path,cur===v?'':v); }
+  const nv=getPath(r,path);
+  el.closest('.chips').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',multi?(nv||[]).includes(c.dataset.value):nv===c.dataset.value));
+  if(path==='avType') { r.tv.present=['tv_only','tv_stereo','tv_surround'].includes(v); render(); }
 }
-function rBool(el, field) {
-  const v=el.dataset.value==='true'; S.room[field]=v;
-  el.closest('.chips').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.value===String(v)));
-}
-function rToggle(el, path) { el.classList.toggle('on'); setPath(S.room,path,el.classList.contains('on')); }
+function rBool(el,field) { const v=el.dataset.value==='true'; S.room[field]=v; el.closest('.chips').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.value===String(v))); }
+function rToggle(el,path) { el.classList.toggle('on'); setPath(S.room,path,el.classList.contains('on')); }
 
-// ═══════════════════════════════════════════
-//  CHIP / COUNTER HELPERS (render)
-// ═══════════════════════════════════════════
-function jChips(opts, path, multi=false) {
+// ─── RENDER HELPERS ───
+function jChips(opts,path,multi=false) {
   const val=getPath(job(),path);
   return `<div class="chips">${opts.map(o=>`<button class="chip ${multi?(val||[]).includes(o.v)?'on':'':val===o.v?'on':''}" data-value="${o.v}" onclick="jChip(this,'${path}',${multi})">${o.l}</button>`).join('')}</div>`;
 }
-function rChips(opts, path, multi=false) {
+function rChips(opts,path,multi=false) {
   const val=getPath(S.room,path);
   return `<div class="chips">${opts.map(o=>`<button class="chip ${multi?(val||[]).includes(o.v)?'on':'':val===o.v?'on':''}" data-value="${o.v}" onclick="rChip(this,'${path}',${multi})">${o.l}</button>`).join('')}</div>`;
 }
@@ -302,230 +456,248 @@ function rBoolChips(field) {
 }
 function jCtrEl(path) {
   const v=getPath(job(),path)||0;
-  return `<div class="ctr">
-    <button onclick="jCtr(this,'${path}',-1)">−</button>
-    <input type="number" value="${v}" min="0" onchange="jCtrSet(this,'${path}')" oninput="jCtrSet(this,'${path}')">
-    <button onclick="jCtr(this,'${path}',1)">+</button>
-  </div>`;
+  return `<div class="ctr"><button class="ctr-btn" onclick="jCtr(this,'${path}',-1)">−</button><input type="number" value="${v}" min="0" onchange="jCtrSet(this,'${path}')" oninput="jCtrSet(this,'${path}')"><button class="ctr-btn" onclick="jCtr(this,'${path}',1)">+</button></div>`;
 }
-function jTogEl(path, label) {
+function jTogEl(path,label) {
   const v=getPath(job(),path);
   return `<div class="tog-row"><span class="tog-lbl">${label}</span><button class="tog ${v?'on':''}" onclick="jToggle(this,'${path}')"></button></div>`;
 }
+function field(label, body) { return `<div class="f"><label>${label}</label>${body}</div>`; }
 
-// ═══════════════════════════════════════════
-//  HOME SCREEN
-// ═══════════════════════════════════════════
+// ─── HOME ───
 function renderHome() {
   const jobs=[...S.jobs].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const today=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
   return `<div class="screen">
     <div class="home-top">
-      <div class="home-logo">Synergy<span> AV</span></div>
-      <div class="home-sub">Job Walk</div>
+      <div class="home-mark">
+        <div class="home-s">S</div>
+        <div>
+          <div class="home-wordmark">Synergy AV</div>
+          <div class="home-sub">Job Walk</div>
+        </div>
+      </div>
+      <div class="home-date">${today}</div>
     </div>
     <div class="home-content">
-      <button class="new-btn" onclick="newJob()">+ New Job Walk</button>
-      ${jobs.length===0 ? `<div class="empty"><div class="empty-ic">🏠</div><div class="empty-tx">No walks yet. Tap above to start.</div></div>` :
-        `<div class="sec-lbl">Recent Walks</div>
-        ${jobs.map(j=>`
-          <div class="job-row" onclick="openJob('${j.id}')">
-            <div>
-              <div class="job-name">${j.client.name||'Unnamed Client'}</div>
-              <div class="job-meta">${j.client.address||'No address'} · ${new Date(j.createdAt).toLocaleDateString()}</div>
-            </div>
-            <button class="job-del" onclick="event.stopPropagation();delJob('${j.id}')">🗑</button>
-          </div>
-        `).join('')}`
+      <button class="new-btn" onclick="newJob()">${IC.plus} New Job Walk</button>
+      ${jobs.length===0
+        ? `<div class="empty"><div class="empty-line"></div><div class="empty-tx">No walks on record.<br>Start one above.</div></div>`
+        : `<div class="sec-lbl">Recent Walks</div>
+           ${jobs.map(j=>`
+             <div class="job-row" onclick="openJob('${j.id}')">
+               <div>
+                 <div class="job-name">${j.client.name||'Unnamed Client'}</div>
+                 <div class="job-meta">${j.client.address||'No address'} · ${new Date(j.createdAt).toLocaleDateString()}</div>
+               </div>
+               <button class="job-del" onclick="event.stopPropagation();delJob('${j.id}')">×</button>
+             </div>`).join('')}`
       }
     </div>
   </div>`;
 }
-
-function newJob() {
-  const j=mkJob(); S.jobs.push(j); S.jid=j.id; persist(); go('job','client');
-}
+function newJob() { const j=mkJob(); S.jobs.push(j); S.jid=j.id; persist(); go('job','client'); }
 function openJob(id) { S.jid=id; go('job','client'); }
-function delJob(id) {
-  if(!confirm('Delete this job walk?')) return;
-  S.jobs=S.jobs.filter(j=>j.id!==id); if(S.jid===id) S.jid=null; persist(); render();
-}
+function delJob(id) { if(!confirm('Delete this job walk?')) return; S.jobs=S.jobs.filter(j=>j.id!==id); if(S.jid===id) S.jid=null; persist(); render(); }
 
-// ═══════════════════════════════════════════
-//  JOB SCREEN
-// ═══════════════════════════════════════════
+// ─── JOB SCREEN ───
 const TABS=[
-  {id:'client',ic:'👤',lbl:'Client'},
-  {id:'rooms',ic:'🚪',lbl:'Rooms'},
-  {id:'systems',ic:'🎛',lbl:'Systems'},
-  {id:'network',ic:'📡',lbl:'Network'},
-  {id:'cameras',ic:'📷',lbl:'Cameras'},
-  {id:'export',ic:'📤',lbl:'Export'},
+  {id:'client',  ic:'client',  lbl:'Client'},
+  {id:'rooms',   ic:'rooms',   lbl:'Rooms'},
+  {id:'systems', ic:'systems', lbl:'Systems'},
+  {id:'network', ic:'network', lbl:'Network'},
+  {id:'cameras', ic:'cameras', lbl:'Cameras'},
+  {id:'export',  ic:'export',  lbl:'Export'},
 ];
+
 function renderJob() {
   const j=job(); if(!j){go('home');return '';}
-  const tabs=TABS.map(t=>`<button class="bnav-tab ${S.tab===t.id?'on':''}" onclick="tab('${t.id}')"><span class="ni">${t.ic}</span><span>${t.lbl}</span></button>`).join('');
+  const bnav=TABS.map(t=>`<button class="bnav-tab ${S.tab===t.id?'on':''}" onclick="tab('${t.id}')">${IC[t.ic]}<span>${t.lbl}</span></button>`).join('');
   let body='';
-  if(S.tab==='client') body=renderClient(j);
-  else if(S.tab==='rooms') body=renderRooms(j);
-  else if(S.tab==='systems') body=renderSystems(j);
-  else if(S.tab==='network') body=renderNetwork(j);
-  else if(S.tab==='cameras') body=renderCameras(j);
-  else if(S.tab==='export') body=renderExport(j);
+  if(S.tab==='client')  body=renderClient(j);
+  if(S.tab==='rooms')   body=renderRooms(j);
+  if(S.tab==='systems') body=renderSystems(j);
+  if(S.tab==='network') body=renderNetwork(j);
+  if(S.tab==='cameras') body=renderCameras(j);
+  if(S.tab==='export')  body=renderExport(j);
   return `<div class="screen">
     <div class="hdr">
-      <button class="hdr-btn" onclick="go('home')">← Jobs</button>
-      <h1>${j.client.name||'New Job Walk'}</h1>
-      <span></span>
+      <button class="hdr-btn" onclick="go('home')">← Walks</button>
+      <span class="hdr-title">${j.client.name||'New Walk'}</span>
+      <div class="hdr-spacer"></div>
     </div>
     <div class="content">${body}</div>
-    <div class="bnav">${tabs}</div>
+    <div class="bnav">${bnav}</div>
   </div>`;
 }
 
-// ── CLIENT TAB ──
+// ─── CLIENT TAB ───
 function renderClient(j) {
-  const c=j.client, h=j.home, s=j.setup;
+  const c=j.client,h=j.home,s=j.setup;
   return `
   <div class="card">
-    <div class="card-ttl">Client Info</div>
-    <div class="f"><label>Client Name</label><input type="text" value="${c.name}" placeholder="Last, First" oninput="jInput(this,'client.name')"></div>
-    <div class="f"><label>Address</label><input type="text" value="${c.address}" placeholder="123 Main St, Newport Beach" oninput="jInput(this,'client.address')"></div>
-    <div class="f"><label>Decision Maker</label><input type="text" value="${c.decisionMaker}" placeholder="Who makes the call on site?" oninput="jInput(this,'client.decisionMaker')"></div>
-    <div class="f"><label>GC / Builder</label><input type="text" value="${c.gcName}" placeholder="General Contractor" oninput="jInput(this,'client.gcName')"></div>
-    <div class="f"><label>Architect / Designer</label><input type="text" value="${c.designer}" placeholder="Optional" oninput="jInput(this,'client.designer')"></div>
+    <div class="card-hd">Client Info</div>
+    <div class="card-body no-top">
+      ${field('Client Name',`<input type="text" value="${c.name}" placeholder="Last, First" oninput="jInput(this,'client.name')">`)}
+      ${field('Address',`<input type="text" value="${c.address}" placeholder="123 Main St, Newport Beach" oninput="jInput(this,'client.address')">`)}
+      ${field('Decision Maker',`<input type="text" value="${c.decisionMaker}" placeholder="Who has the final say on site?" oninput="jInput(this,'client.decisionMaker')">`)}
+      ${field('GC / Builder',`<input type="text" value="${c.gcName}" placeholder="General Contractor name" oninput="jInput(this,'client.gcName')">`)}
+      ${field('Architect / Designer',`<input type="text" value="${c.designer}" placeholder="Optional" oninput="jInput(this,'client.designer')">`)}
+    </div>
   </div>
   <div class="card">
-    <div class="card-ttl">Job Type</div>
-    <div class="f"><label>Project Type</label>${jChips([{l:'New Build',v:'new_build'},{l:'Retrofit',v:'retrofit'},{l:'Prewire Only',v:'prewire'},{l:'Service',v:'service'}],'client.jobType')}</div>
-    <div class="f"><label>Phase</label>${jChips([{l:'Prewire',v:'prewire'},{l:'Trim Out',v:'trim'},{l:'Full Install',v:'full'},{l:'All Phases',v:'all'}],'client.phase')}</div>
-    <div class="f"><label>Budget Tier</label>${jChips([{l:'Entry',v:'entry'},{l:'Mid',v:'mid'},{l:'High',v:'high'},{l:'Ultra',v:'ultra'}],'client.budgetTier')}</div>
+    <div class="card-hd">Project</div>
+    <div class="card-body no-top">
+      ${field('Type',jChips([{l:'New Build',v:'new_build'},{l:'Retrofit',v:'retrofit'},{l:'Prewire Only',v:'prewire'},{l:'Service',v:'service'}],'client.jobType'))}
+      ${field('Phase',jChips([{l:'Prewire',v:'prewire'},{l:'Trim Out',v:'trim'},{l:'Full Install',v:'full'},{l:'All Phases',v:'all'}],'client.phase'))}
+      ${field('Budget Tier',jChips([{l:'Entry',v:'entry'},{l:'Mid',v:'mid'},{l:'High',v:'high'},{l:'Ultra',v:'ultra'}],'client.budgetTier'))}
+    </div>
   </div>
   <div class="card">
-    <div class="card-ttl">Home Details</div>
-    <div class="f"><label>Approx. Sq Footage</label><input type="number" value="${h.sqft}" placeholder="e.g. 4500" oninput="jInput(this,'home.sqft')"></div>
-    <div class="f"><label>Stories</label>${jChips([{l:'1',v:'1'},{l:'2',v:'2'},{l:'3',v:'3'},{l:'3+',v:'3+'}],'home.stories')}</div>
-    <div class="f"><label>Construction</label>${jChips([{l:'Wood Frame',v:'wood'},{l:'Concrete',v:'concrete'},{l:'Steel',v:'steel'},{l:'Mixed',v:'mixed'}],'home.construction')}</div>
+    <div class="card-hd">Home Details</div>
+    <div class="card-body no-top">
+      ${field('Approx. Sq Footage',`<input type="number" value="${h.sqft}" placeholder="e.g. 4500" oninput="jInput(this,'home.sqft')">`)}
+      ${field('Stories',jChips([{l:'1',v:'1'},{l:'2',v:'2'},{l:'3',v:'3'},{l:'3+',v:'3+'}],'home.stories'))}
+      ${field('Construction',jChips([{l:'Wood Frame',v:'wood'},{l:'Concrete',v:'concrete'},{l:'Steel',v:'steel'},{l:'Mixed',v:'mixed'}],'home.construction'))}
+    </div>
   </div>
   <div class="card">
-    <div class="card-ttl">Walk Setup</div>
-    <div class="f"><label>AV Rack Location</label><input type="text" value="${s.rackLocation}" placeholder="e.g. Hallway closet, 2nd floor" oninput="jInput(this,'setup.rackLocation')"></div>
-    <div class="f"><label>Network Closet</label><input type="text" value="${s.networkCloset}" placeholder="e.g. Same as rack / Garage" oninput="jInput(this,'setup.networkCloset')"></div>
-    <div class="f"><label>Walk Notes</label><textarea placeholder="General notes..." oninput="jInput(this,'setup.notes')">${s.notes}</textarea></div>
+    <div class="card-hd">Walk Notes</div>
+    <div class="card-body no-top">
+      ${field('AV Rack Location',`<input type="text" value="${s.rackLocation}" placeholder="e.g. Hallway closet, 2nd floor" oninput="jInput(this,'setup.rackLocation')">`)}
+      ${field('Network Closet',`<input type="text" value="${s.networkCloset}" placeholder="e.g. Same as rack / Garage" oninput="jInput(this,'setup.networkCloset')">`)}
+      ${field('General Notes',`<textarea placeholder="Anything worth noting from the walk..." oninput="jInput(this,'setup.notes')">${s.notes}</textarea>`)}
+    </div>
   </div>`;
 }
 
-// ── ROOMS TAB ──
+// ─── ROOMS TAB ───
 function roomSub(r) {
+  const lbl={tv_only:'TV Only',speakers_only:'Speakers Only',tv_stereo:'TV + Stereo',tv_surround:'TV + Surround',audio_only:'Audio Only',none:'None'};
   const p=[];
-  const av={tv_only:'TV Only',speakers_only:'Speakers Only',tv_stereo:'TV + Stereo',tv_surround:'TV + Surround',audio_only:'Audio Only',none:'None'};
-  if(r.avType) p.push(av[r.avType]||r.avType);
-  if(r.tv?.size) p.push(r.tv.size===r.tv.customSize?r.tv.customSize:r.tv.size+'"');
-  if(r.gearLocation) p.push(r.gearLocation==='rack'?'→ Rack':'Local');
-  return p.join(' · ')||'Tap to configure';
+  if(r.avType) p.push(lbl[r.avType]||r.avType);
+  if(r.tv?.size) p.push(r.tv.size==='other'?(r.tv.customSize||'Custom size'):r.tv.size+'"');
+  if(r.gearLocation) p.push(r.gearLocation==='rack'?'Distributed to rack':'Local');
+  return p.join('  ·  ')||'Not configured';
 }
 function renderRooms(j) {
   return `
-  ${j.rooms.length===0?`<div class="empty"><div class="empty-ic">🚪</div><div class="empty-tx">No rooms yet.</div></div>`:
-    j.rooms.map(r=>`
-      <div class="room-row" onclick="editRoom('${r.id}')">
-        <div>
-          <div class="room-row-name">${r.customName||r.name}</div>
-          <div class="room-row-sub">${roomSub(r)}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <button class="room-del" onclick="event.stopPropagation();delRoom('${r.id}')">✕</button>
-          <span style="color:var(--muted);font-size:20px;">›</span>
-        </div>
-      </div>`).join('')
+  ${j.rooms.length===0
+    ? `<div class="empty"><div class="empty-line"></div><div class="empty-tx">No rooms added yet.</div></div>`
+    : j.rooms.map(r=>`
+        <div class="room-row" onclick="editRoom('${r.id}')">
+          <div>
+            <div class="room-name">${r.customName||r.name}</div>
+            <div class="room-sub">${roomSub(r)}</div>
+          </div>
+          <div class="room-row-right">
+            <button class="room-del" onclick="event.stopPropagation();delRoom('${r.id}')">×</button>
+            <span class="room-chev">›</span>
+          </div>
+        </div>`).join('')
   }
-  <button class="add-btn" onclick="go('picker')">+ Add Room</button>`;
+  <button class="add-btn" onclick="go('picker')">${IC.plus} Add Room</button>`;
 }
-function delRoom(id) {
-  job().rooms=job().rooms.filter(r=>r.id!==id); persist(); render();
-}
-function editRoom(id) {
-  S.rid=id; S.room=JSON.parse(JSON.stringify(job().rooms.find(r=>r.id===id)));
-  go('room-editor');
-}
+function delRoom(id) { job().rooms=job().rooms.filter(r=>r.id!==id); persist(); render(); }
+function editRoom(id) { S.rid=id; S.room=JSON.parse(JSON.stringify(job().rooms.find(r=>r.id===id))); go('room-editor'); }
 
-// ── SYSTEMS TAB ──
+// ─── SYSTEMS TAB ───
 function renderSystems(j) {
-  const c=j.control, l=j.lighting, a=j.audio, o=j.outdoor;
-  const sub=[{l:'❄️ HVAC',v:'hvac'},{l:'💡 Lighting',v:'lighting'},{l:'🪟 Shades',v:'shades'},{l:'🔒 Security',v:'security'},{l:'🏊 Pool/Spa',v:'pool'},{l:'🚗 Garage',v:'garage'},{l:'🔔 Doorbell',v:'doorbell'},{l:'🎤 Voice',v:'voice'}];
+  const o=j.outdoor;
+  const sub=[{l:'HVAC',v:'hvac'},{l:'Lighting',v:'lighting'},{l:'Shades',v:'shades'},{l:'Security',v:'security'},{l:'Pool / Spa',v:'pool'},{l:'Garage Doors',v:'garage'},{l:'Doorbell',v:'doorbell'},{l:'Voice Control',v:'voice'}];
   return `
   <div class="card">
-    <div class="card-ttl">Control4</div>
-    <div class="f"><label>Processor</label>${jChips([{l:'CORE 1',v:'core1'},{l:'EA-1',v:'ea1'},{l:'EA-3',v:'ea3'},{l:'EA-5',v:'ea5'},{l:'TBD',v:'tbd'}],'control.processor')}</div>
-    <div class="f"><label>Sub-Systems Controlled</label>${jChips(sub,'control.subsystems',true)}</div>
-  </div>
-  <div class="card">
-    <div class="card-ttl">Lighting Control</div>
-    <div class="f"><label>Brand</label>${jChips([{l:'Lutron HW QS',v:'hw_qs'},{l:'RadioRA3',v:'radiora3'},{l:'Caseta',v:'caseta'},{l:'Other',v:'other'},{l:'None',v:'none'}],'lighting.brand')}</div>
-    <div class="f"><label>Scope</label>${jChips([{l:'Full Home',v:'full'},{l:'Partial',v:'partial'},{l:'Client Handles',v:'client'}],'lighting.scope')}</div>
-  </div>
-  <div class="card">
-    <div class="card-ttl">Whole-Home Audio</div>
-    <div class="f"><label>Platform</label>${jChips([{l:'Sonos',v:'sonos'},{l:'C4 Audio',v:'c4_audio'},{l:'Zone Amp',v:'zone'},{l:'None',v:'none'}],'audio.platform')}</div>
-    <div class="f"><label>Total Audio Zones</label>${jCtrEl('audio.zones')}</div>
-  </div>
-  <div class="card">
-    <div class="card-ttl">Outdoor</div>
-    <div class="f">${jTogEl('outdoor.landscapeAudio','Landscape Audio')}</div>
-    ${o.landscapeAudio?`<div class="f"><label>Landscape Zones</label>${jCtrEl('outdoor.zones')}</div>`:''}
-    <div class="div"></div>
-    <div class="f">${jTogEl('outdoor.poolSpa','Pool / Spa Automation')}</div>
-    <div class="f">${jTogEl('outdoor.outdoorTv','Outdoor TV')}</div>
-  </div>`;
-}
-
-// ── NETWORK TAB ──
-function renderNetwork(j) {
-  const n=j.network;
-  return `
-  <div class="card">
-    <div class="card-ttl">Access Points</div>
-    <div class="f"><label>AP Count</label>${jCtrEl('network.apCount')}</div>
-  </div>
-  <div class="card">
-    <div class="card-ttl">Switch</div>
-    <div class="f"><label>Switch Size</label>${jChips([{l:'8-Port',v:'8'},{l:'16-Port',v:'16'},{l:'24-Port',v:'24'},{l:'48-Port',v:'48'},{l:'TBD',v:'tbd'}],'network.switchSize')}</div>
-  </div>
-  <div class="card">
-    <div class="card-ttl">Equipment</div>
-    <div class="f">${jTogEl('network.nvr','NVR Needed')}</div>
-    <div class="div"></div>
-    <div class="f">${jTogEl('network.ups','UPS Needed')}</div>
-  </div>
-  <div class="card">
-    <div class="card-ttl">Notes</div>
-    <div class="f"><textarea placeholder="ISP info, existing equipment, special requirements..." oninput="jInput(this,'network.notes')">${n.notes}</textarea></div>
-  </div>`;
-}
-
-// ── CAMERAS TAB ──
-function renderCameras(j) {
-  const cam=j.cameras;
-  const areas=[{l:'Front',v:'front'},{l:'Rear',v:'rear'},{l:'Side',v:'side'},{l:'Garage',v:'garage'},{l:'Driveway',v:'driveway'},{l:'Pool/Spa',v:'pool'},{l:'Interior',v:'interior'},{l:'Entry',v:'entry'}];
-  return `
-  <div class="card">
-    <div class="card-ttl">Camera Count</div>
-    <div class="f"><label>Total</label>${jCtrEl('cameras.total')}</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;">
-      <div><div class="f"><label style="font-size:13px;color:var(--muted);">Interior</label>${jCtrEl('cameras.interior')}</div></div>
-      <div><div class="f"><label style="font-size:13px;color:var(--muted);">Exterior</label>${jCtrEl('cameras.exterior')}</div></div>
+    <div class="card-hd">Control4</div>
+    <div class="card-body no-top">
+      ${field('Processor',jChips([{l:'CORE 1',v:'core1'},{l:'EA-1',v:'ea1'},{l:'EA-3',v:'ea3'},{l:'EA-5',v:'ea5'},{l:'TBD',v:'tbd'}],'control.processor'))}
+      ${field('Sub-Systems Controlled',jChips(sub,'control.subsystems',true))}
     </div>
   </div>
   <div class="card">
-    <div class="card-ttl">Coverage Areas</div>
-    <div class="f">${jChips(areas,'cameras.areas',true)}</div>
+    <div class="card-hd">Lighting Control</div>
+    <div class="card-body no-top">
+      ${field('Brand',jChips([{l:'Lutron HW QS',v:'hw_qs'},{l:'RadioRA3',v:'radiora3'},{l:'Caseta',v:'caseta'},{l:'Other',v:'other'},{l:'None',v:'none'}],'lighting.brand'))}
+      ${field('Scope',jChips([{l:'Full Home',v:'full'},{l:'Partial',v:'partial'},{l:'Client Handles',v:'client'}],'lighting.scope'))}
+    </div>
   </div>
   <div class="card">
-    <div class="card-ttl">Notes</div>
-    <div class="f"><textarea placeholder="Special placements, PTZ, custom hardware..." oninput="jInput(this,'cameras.notes')">${cam.notes}</textarea></div>
+    <div class="card-hd">Whole-Home Audio</div>
+    <div class="card-body no-top">
+      ${field('Platform',jChips([{l:'Sonos',v:'sonos'},{l:'C4 Audio',v:'c4_audio'},{l:'Zone Amp',v:'zone'},{l:'None',v:'none'}],'audio.platform'))}
+      ${field('Total Audio Zones',jCtrEl('audio.zones'))}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Outdoor</div>
+    <div class="card-body no-top">
+      <div class="f">${jTogEl('outdoor.landscapeAudio','Landscape Audio')}</div>
+      ${o.landscapeAudio?`<div class="f">${field('Landscape Zones',jCtrEl('outdoor.zones'))}</div>`:''}
+      <div class="div"></div>
+      <div class="f">${jTogEl('outdoor.poolSpa','Pool / Spa Automation')}</div>
+      <div class="f">${jTogEl('outdoor.outdoorTv','Outdoor TV')}</div>
+    </div>
   </div>`;
 }
 
-// ── EXPORT TAB ──
+// ─── NETWORK TAB ───
+function renderNetwork(j) {
+  return `
+  <div class="card">
+    <div class="card-hd">Access Points</div>
+    <div class="card-body no-top">${field('AP Count',jCtrEl('network.apCount'))}</div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Switch</div>
+    <div class="card-body no-top">${field('Switch Size',jChips([{l:'8-Port',v:'8'},{l:'16-Port',v:'16'},{l:'24-Port',v:'24'},{l:'48-Port',v:'48'},{l:'TBD',v:'tbd'}],'network.switchSize'))}</div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Equipment</div>
+    <div class="card-body no-top">
+      <div class="f">${jTogEl('network.nvr','NVR Needed')}</div>
+      <div class="div"></div>
+      <div class="f">${jTogEl('network.ups','UPS Needed')}</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Notes</div>
+    <div class="card-body no-top">${field('',`<textarea placeholder="ISP info, existing equipment, special requirements..." oninput="jInput(this,'network.notes')">${j.network.notes}</textarea>`)}</div>
+  </div>`;
+}
+
+// ─── CAMERAS TAB ───
+function renderCameras(j) {
+  const areas=[{l:'Front',v:'front'},{l:'Rear',v:'rear'},{l:'Side',v:'side'},{l:'Garage',v:'garage'},{l:'Driveway',v:'driveway'},{l:'Pool / Spa',v:'pool'},{l:'Interior',v:'interior'},{l:'Entry / Foyer',v:'entry'}];
+  return `
+  <div class="card">
+    <div class="card-hd">Camera Count</div>
+    <div class="card-body no-top">
+      ${field('Total',jCtrEl('cameras.total'))}
+      <div class="f">
+        <label>Breakdown</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <div style="font-size:12px;color:var(--ink-4);font-weight:600;margin-bottom:7px;">Interior</div>
+            ${jCtrEl('cameras.interior')}
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--ink-4);font-weight:600;margin-bottom:7px;">Exterior</div>
+            ${jCtrEl('cameras.exterior')}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Coverage Areas</div>
+    <div class="card-body no-top">${field('',jChips(areas,'cameras.areas',true))}</div>
+  </div>
+  <div class="card">
+    <div class="card-hd">Notes</div>
+    <div class="card-body no-top">${field('',`<textarea placeholder="Special placements, PTZ, custom hardware..." oninput="jInput(this,'cameras.notes')">${j.cameras.notes}</textarea>`)}</div>
+  </div>`;
+}
+
+// ─── EXPORT TAB ───
 function renderExport(j) {
   const tvZ=j.rooms.filter(r=>['tv_only','tv_stereo','tv_surround'].includes(r.avType)).length;
   const audZ=j.rooms.filter(r=>['speakers_only','tv_stereo','tv_surround','audio_only'].includes(r.avType)).length;
@@ -533,137 +705,136 @@ function renderExport(j) {
   const c4R=j.rooms.filter(r=>r.c4Remote===true).length;
   return `
   <div class="card">
-    <div class="card-ttl">Summary</div>
-    <div class="stats-grid">
-      <div class="stat"><div class="stat-n">${j.rooms.length}</div><div class="stat-l">Rooms</div></div>
-      <div class="stat"><div class="stat-n">${tvZ}</div><div class="stat-l">TV Zones</div></div>
-      <div class="stat"><div class="stat-n">${audZ}</div><div class="stat-l">Audio Zones</div></div>
-      <div class="stat"><div class="stat-n">${surZ}</div><div class="stat-l">Surround</div></div>
-      <div class="stat"><div class="stat-n">${j.network.apCount||0}</div><div class="stat-l">APs</div></div>
-      <div class="stat"><div class="stat-n">${j.cameras.total||0}</div><div class="stat-l">Cameras</div></div>
+    <div class="card-hd">Summary</div>
+    <div class="card-body no-top">
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-n">${j.rooms.length}</div><div class="stat-l">Rooms</div></div>
+        <div class="stat-box"><div class="stat-n">${tvZ}</div><div class="stat-l">TV Zones</div></div>
+        <div class="stat-box"><div class="stat-n">${audZ}</div><div class="stat-l">Audio</div></div>
+        <div class="stat-box"><div class="stat-n">${surZ}</div><div class="stat-l">Surround</div></div>
+        <div class="stat-box"><div class="stat-n">${j.network.apCount||0}</div><div class="stat-l">APs</div></div>
+        <div class="stat-box"><div class="stat-n">${j.cameras.total||0}</div><div class="stat-l">Cameras</div></div>
+      </div>
+      <div style="font-size:12.5px;color:var(--ink-4);text-align:center;padding-top:2px;">${c4R} C4 remotes · ${j.audio.zones||0} audio zones</div>
     </div>
-    <div style="font-size:13px;color:var(--muted);text-align:center;">${c4R} rooms with C4 remotes · ${j.audio.zones||0} audio zones</div>
   </div>
   <div class="card">
-    <div class="card-ttl">Export</div>
-    <button class="exp-btn exp-xl" onclick="exportXL()">📊 Export to Excel</button>
-    <button class="exp-btn exp-js" onclick="exportJSON()">{ } Export JSON (AI-Ready)</button>
+    <div class="card-hd">Export</div>
+    <div class="card-body no-top">
+      <button class="exp-btn exp-xl" onclick="exportXL()">${IC.upload} Export to Excel</button>
+      <button class="exp-btn exp-js" onclick="exportJSON()">${IC.upload} Export JSON — AI Ready</button>
+    </div>
   </div>`;
 }
 
-// ═══════════════════════════════════════════
-//  ROOM PICKER
-// ═══════════════════════════════════════════
-const RTYPES=[
-  {ic:'🛋',lbl:'Family Room',name:'Family Room'},
-  {ic:'🎬',lbl:'Theater',name:'Theater'},
-  {ic:'👑',lbl:'Primary Suite',name:'Primary Suite'},
-  {ic:'🛏',lbl:'Bedroom',name:'Bedroom'},
-  {ic:'🪑',lbl:'Den',name:'Den'},
-  {ic:'🍳',lbl:'Kitchen',name:'Kitchen'},
-  {ic:'🌿',lbl:'Outdoor',name:'Outdoor'},
-  {ic:'🚪',lbl:'Entry',name:'Entry'},
-  {ic:'📦',lbl:'Network Closet',name:'Network Closet'},
-  {ic:'✏️',lbl:'Custom',name:'Custom'},
+// ─── ROOM PICKER ───
+const RTYPES = [
+  { group:'AV Zones' },
+  { name:'Family Room' }, { name:'Theater' }, { name:'Primary Suite' },
+  { name:'Bedroom' }, { name:'Den / Office', key:'Den' }, { name:'Kitchen' },
+  { group:'Outdoor & Entry' },
+  { name:'Outdoor' }, { name:'Entry / Foyer', key:'Entry' },
+  { group:'Infrastructure' },
+  { name:'Network Closet' }, { name:'Equipment Rack' },
+  { group:'Custom' },
+  { name:'Custom Room', key:'Custom', custom:true },
 ];
+
 function renderPicker() {
   return `<div class="screen">
     <div class="hdr">
       <button class="hdr-btn" onclick="go('job','rooms')">Cancel</button>
-      <h1>Add Room</h1><span></span>
+      <span class="hdr-title">Add Room</span>
+      <div class="hdr-spacer"></div>
     </div>
-    <div class="content">
-      <div class="card">
-        <div class="card-ttl">Room Type</div>
-        <div class="rt-grid">
-          ${RTYPES.map(r=>`<button class="rt-btn" onclick="pickRoom('${r.name}')"><span class="rt-icon">${r.ic}</span><span class="rt-lbl">${r.lbl}</span></button>`).join('')}
-        </div>
-      </div>
+    <div style="background:var(--surface);border-bottom:1px solid var(--line);">
+      ${RTYPES.map(r => r.group
+        ? `<div class="pick-group">${r.group}</div>`
+        : `<div class="pick-list"><div class="pick-row" onclick="pickRoom('${r.key||r.name}')">
+             <span class="pick-name ${r.custom?'custom':''}">${r.name}</span>
+             <span class="pick-chev">${IC.arrow}</span>
+           </div></div>`
+      ).join('')}
     </div>
   </div>`;
 }
+
 function pickRoom(name) {
   let custom='';
   if(name==='Custom') { custom=prompt('Room name:'); if(!custom) return; }
-  else if(name==='Bedroom') { custom=prompt('Bedroom name (e.g. "Bedroom 2", "Guest Room"):') || 'Bedroom'; }
-  const r=mkRoom(name, custom);
-  job().rooms.push(r); persist();
-  S.rid=r.id; S.room=JSON.parse(JSON.stringify(r));
-  go('room-editor');
+  else if(name==='Bedroom') { custom=prompt('Name this bedroom (e.g. "Guest Room", "Bedroom 2"):') || 'Bedroom'; }
+  const r=mkRoom(name,custom); job().rooms.push(r); persist();
+  S.rid=r.id; S.room=JSON.parse(JSON.stringify(r)); go('room-editor');
 }
 
-// ═══════════════════════════════════════════
-//  ROOM EDITOR
-// ═══════════════════════════════════════════
+// ─── ROOM EDITOR ───
 function renderRoomEditor() {
   const r=S.room;
   const hasTV=['tv_only','tv_stereo','tv_surround'].includes(r.avType);
   const hasAudio=['speakers_only','tv_stereo','tv_surround','audio_only'].includes(r.avType);
   const isSurround=r.avType==='tv_surround';
   const isTheater=r.name==='Theater';
-  const needsCustomName=r.name==='Custom'||r.name==='Bedroom';
+  const needsName=r.name==='Custom'||r.name==='Bedroom';
 
   return `<div class="screen">
     <div class="hdr">
       <button class="hdr-btn" onclick="cancelRoom()">Cancel</button>
-      <h1>${r.customName||r.name}</h1>
+      <span class="hdr-title">${r.customName||r.name}</span>
       <button class="hdr-btn" onclick="saveRoom()">Save</button>
     </div>
     <div class="content">
 
-      ${needsCustomName?`<div class="card"><div class="f"><label>Room Name</label><input type="text" value="${r.customName}" placeholder="Enter room name" oninput="rInput(this,'customName')"></div></div>`:''}
+      ${needsName?`<div class="card"><div class="card-body">${field('Room Name',`<input type="text" value="${r.customName}" placeholder="Name this room" oninput="rInput(this,'customName')">`)}</div></div>`:''}
 
       <div class="card">
-        <div class="card-ttl">AV Setup</div>
-        <div class="f"><label>What's in this room?</label>
-          ${rChips([{l:'TV Only',v:'tv_only'},{l:'Speakers Only',v:'speakers_only'},{l:'TV + Stereo',v:'tv_stereo'},{l:'TV + Surround',v:'tv_surround'},{l:'Audio Only',v:'audio_only'},{l:'None',v:'none'}],'avType')}
-        </div>
+        <div class="card-hd">AV Setup</div>
+        <div class="card-body no-top">${field('What\'s in this room?',rChips([{l:'TV Only',v:'tv_only'},{l:'Speakers Only',v:'speakers_only'},{l:'TV + Stereo',v:'tv_stereo'},{l:'TV + Surround',v:'tv_surround'},{l:'Audio Only',v:'audio_only'},{l:'None',v:'none'}],'avType'))}</div>
       </div>
 
       ${hasTV?`
       <div class="card">
-        <div class="card-ttl">Television</div>
-        <div class="f"><label>TV Size</label>
-          ${rChips([{l:'55"',v:'55'},{l:'65"',v:'65'},{l:'75"',v:'75'},{l:'85"',v:'85'},{l:'98"',v:'98'},{l:'Other',v:'other'}],'tv.size')}
-          ${r.tv.size==='other'?`<input type="text" style="margin-top:8px;" placeholder='Custom size (e.g. 77")' value="${r.tv.customSize||''}" oninput="rInput(this,'tv.customSize')">`:''}</div>
-        <div class="f"><label>Wall Measurement (inches)</label><div class="row2"><input type="number" placeholder="Width" value="${r.tv.wallW}" oninput="rInput(this,'tv.wallW')"><input type="number" placeholder="Height" value="${r.tv.wallH}" oninput="rInput(this,'tv.wallH')"></div></div>
-        <div class="f"><label>Mount Type</label>${rChips([{l:'Flat',v:'flat'},{l:'Articulating',v:'articulating'},{l:'Recessed',v:'recessed'},{l:'Client OFE',v:'ofe'},{l:'None',v:'none'}],'tv.mountType')}</div>
-        ${isTheater?`
-        <div class="f"><label>Display Type</label>${rChips([{l:'Flat Panel',v:'flat_panel'},{l:'Projector + Screen',v:'projector'}],'theater.displayType')}</div>
-        ${r.theater.displayType==='projector'?`<div class="f"><label>Screen Type</label>${rChips([{l:'Fixed',v:'fixed'},{l:'Electric',v:'electric'},{l:'Short Throw',v:'short_throw'}],'theater.screenType')}</div>`:''}
-        `:''}
-        <div class="f"><label>Source Device</label>${rChips([{l:'Apple TV',v:'appletv'},{l:'Client OFE',v:'ofe'},{l:'TBD',v:'tbd'},{l:'None',v:'none'}],'sourceDevice')}</div>
+        <div class="card-hd">Television</div>
+        <div class="card-body no-top">
+          ${field('TV Size',`${rChips([{l:'55"',v:'55'},{l:'65"',v:'65'},{l:'75"',v:'75'},{l:'85"',v:'85'},{l:'98"',v:'98'},{l:'Other',v:'other'}],'tv.size')}${r.tv.size==='other'?`<input type="text" style="margin-top:8px" placeholder='e.g. 77"' value="${r.tv.customSize||''}" oninput="rInput(this,'tv.customSize')">`:''}`)}
+          ${field('Wall Measurement (inches)',`<div class="row2"><input type="number" placeholder="Width" value="${r.tv.wallW}" oninput="rInput(this,'tv.wallW')"><input type="number" placeholder="Height" value="${r.tv.wallH}" oninput="rInput(this,'tv.wallH')"></div>`)}
+          ${field('Mount Type',rChips([{l:'Flat',v:'flat'},{l:'Articulating',v:'articulating'},{l:'Recessed',v:'recessed'},{l:'Client OFE',v:'ofe'},{l:'None',v:'none'}],'tv.mountType'))}
+          ${isTheater?`
+            ${field('Display Type',rChips([{l:'Flat Panel',v:'flat_panel'},{l:'Projector + Screen',v:'projector'}],'theater.displayType'))}
+            ${r.theater.displayType==='projector'?field('Screen Type',rChips([{l:'Fixed',v:'fixed'},{l:'Electric',v:'electric'},{l:'Short Throw',v:'short_throw'}],'theater.screenType')):''}`:''}
+          ${field('Source Device',rChips([{l:'Apple TV',v:'appletv'},{l:'Client OFE',v:'ofe'},{l:'TBD',v:'tbd'},{l:'None',v:'none'}],'sourceDevice'))}
+        </div>
       </div>`:''}
 
       ${hasAudio?`
       <div class="card">
-        <div class="card-ttl">Audio</div>
-        ${isSurround?`
-          <div class="f"><label>Surround Config</label>${rChips([{l:'5.1',v:'5.1'},{l:'7.1',v:'7.1'},{l:'Dolby Atmos',v:'atmos'}],'audio.surroundConfig')}</div>
-          <div class="f"><label>Speaker Type</label>${rChips([{l:'In-Ceiling',v:'in_ceiling'},{l:'In-Wall',v:'in_wall'}],'audio.type')}</div>
-        `:`
-          <div class="f"><label>Speaker Type</label>${rChips([{l:'In-Ceiling',v:'in_ceiling'},{l:'Soundbar',v:'soundbar'},{l:'In-Wall',v:'in_wall'}],'audio.type')}</div>
-        `}
+        <div class="card-hd">Audio</div>
+        <div class="card-body no-top">
+          ${isSurround
+            ? `${field('Surround Config',rChips([{l:'5.1',v:'5.1'},{l:'7.1',v:'7.1'},{l:'Dolby Atmos',v:'atmos'}],'audio.surroundConfig'))}
+               ${field('Speaker Type',rChips([{l:'In-Ceiling',v:'in_ceiling'},{l:'In-Wall',v:'in_wall'}],'audio.type'))}`
+            : field('Speaker Type',rChips([{l:'In-Ceiling',v:'in_ceiling'},{l:'Soundbar',v:'soundbar'},{l:'In-Wall',v:'in_wall'}],'audio.type'))
+          }
+        </div>
       </div>`:''}
 
       <div class="card">
-        <div class="card-ttl">Equipment & Control</div>
-        <div class="f"><label>Gear Location</label>${rChips([{l:'Local (in room)',v:'local'},{l:'To AV Rack',v:'rack'}],'gearLocation')}</div>
-        <div class="f"><label>C4 Remote?</label>${rBoolChips('c4Remote')}</div>
-        <div class="f"><label>Lighting Keypad?</label>${rBoolChips('lightingKeypad')}</div>
-        <div class="f"><label>Motorized Shades?</label>${rChips([{l:'Yes',v:'yes'},{l:'No',v:'no'},{l:'TBD',v:'tbd'}],'motorizedShades')}</div>
+        <div class="card-hd">Equipment & Control</div>
+        <div class="card-body no-top">
+          ${field('Gear Location',rChips([{l:'Local (in room)',v:'local'},{l:'Distributed to AV Rack',v:'rack'}],'gearLocation'))}
+          ${field('C4 Remote?',rBoolChips('c4Remote'))}
+          ${field('Lighting Keypad?',rBoolChips('lightingKeypad'))}
+          ${field('Motorized Shades?',rChips([{l:'Yes',v:'yes'},{l:'No',v:'no'},{l:'TBD',v:'tbd'}],'motorizedShades'))}
+        </div>
       </div>
 
       <div class="card">
-        <div class="card-ttl">Details</div>
-        <div class="f"><label>Ceiling Height (ft)</label><input type="number" value="${r.ceilingHeight}" placeholder="e.g. 9" oninput="rInput(this,'ceilingHeight')"></div>
-        ${isTheater?`<div class="f"><label>Blackout Shades?</label>
-          <div class="chips">
-            <button class="chip ${r.theater.blackoutShades===true?'on':''}" data-value="true" onclick="rBool(this,'theater.blackoutShades')">Yes</button>
-            <button class="chip ${r.theater.blackoutShades===false?'on':''}" data-value="false" onclick="rBool(this,'theater.blackoutShades')">No</button>
-          </div></div>`:''}
-        <div class="f"><label>Data Drops?</label>${rBoolChips('dataDrops')}</div>
-        <div class="f"><label>Room Notes</label><textarea placeholder="Unusual details, custom needs..." oninput="rInput(this,'notes')">${r.notes}</textarea></div>
+        <div class="card-hd">Additional Details</div>
+        <div class="card-body no-top">
+          ${field('Ceiling Height (ft)',`<input type="number" value="${r.ceilingHeight}" placeholder="e.g. 9" oninput="rInput(this,'ceilingHeight')">`)}
+          ${isTheater?field('Blackout Shades?',`<div class="chips"><button class="chip ${r.theater.blackoutShades===true?'on':''}" data-value="true" onclick="rBool(this,'theater.blackoutShades')">Yes</button><button class="chip ${r.theater.blackoutShades===false?'on':''}" data-value="false" onclick="rBool(this,'theater.blackoutShades')">No</button></div>`):''}
+          ${field('Data Drops?',rBoolChips('dataDrops'))}
+          ${field('Room Notes',`<textarea placeholder="Unusual details, custom requirements..." oninput="rInput(this,'notes')">${r.notes}</textarea>`)}
+        </div>
       </div>
 
       <div class="del-row"><button class="del-lnk" onclick="delThisRoom()">Delete Room</button></div>
@@ -671,66 +842,55 @@ function renderRoomEditor() {
   </div>`;
 }
 
-function saveRoom() {
-  const j=job(), idx=j.rooms.findIndex(r=>r.id===S.rid);
-  if(idx>=0) j.rooms[idx]=S.room; persist(); go('job','rooms');
-}
+function saveRoom() { const j=job(),i=j.rooms.findIndex(r=>r.id===S.rid); if(i>=0) j.rooms[i]=S.room; persist(); go('job','rooms'); }
 function cancelRoom() { go('job','rooms'); }
-function delThisRoom() {
-  if(!confirm('Delete this room?')) return;
-  job().rooms=job().rooms.filter(r=>r.id!==S.rid); persist(); go('job','rooms');
-}
+function delThisRoom() { if(!confirm('Delete this room?')) return; job().rooms=job().rooms.filter(r=>r.id!==S.rid); persist(); go('job','rooms'); }
 
-// ═══════════════════════════════════════════
-//  EXPORT
-// ═══════════════════════════════════════════
-const AV_LABELS={tv_only:'TV Only',speakers_only:'Speakers Only',tv_stereo:'TV + Stereo',tv_surround:'TV + Surround',audio_only:'Audio Only',none:'None'};
-const PROC_LABELS={core1:'CORE 1',ea1:'EA-1',ea3:'EA-3',ea5:'EA-5',tbd:'TBD'};
+// ─── EXPORT ───
+const AV_LBL={tv_only:'TV Only',speakers_only:'Speakers Only',tv_stereo:'TV + Stereo',tv_surround:'TV + Surround',audio_only:'Audio Only',none:'None'};
+const PROC_LBL={core1:'CORE 1',ea1:'EA-1',ea3:'EA-3',ea5:'EA-5',tbd:'TBD'};
 
 function exportXL() {
-  const j=job();
-  const wb=XLSX.utils.book_new();
+  const j=job(), wb=XLSX.utils.book_new();
 
-  // ── TAB 1: Summary
+  // Summary
   const sd=[
-    ['SYNERGY JOB WALK — SUMMARY',''],['',''],
+    ['SYNERGY JOB WALK',''],['',''],
     ['Client',j.client.name||''],['Address',j.client.address||''],
     ['Decision Maker',j.client.decisionMaker||''],['GC / Builder',j.client.gcName||''],
     ['Architect / Designer',j.client.designer||''],['',''],
-    ['Job Type',j.client.jobType||''],['Phase',j.client.phase||''],
+    ['Project Type',j.client.jobType||''],['Phase',j.client.phase||''],
     ['Budget Tier',j.client.budgetTier||''],['',''],
     ['Sq Footage',j.home.sqft||''],['Stories',j.home.stories||''],
     ['Construction',j.home.construction||''],['',''],
     ['Rack Location',j.setup.rackLocation||''],['Network Closet',j.setup.networkCloset||''],['',''],
     ['TOTALS',''],
-    ['Total Rooms',j.rooms.length],
+    ['Rooms',j.rooms.length],
     ['TV Zones',j.rooms.filter(r=>['tv_only','tv_stereo','tv_surround'].includes(r.avType)).length],
     ['Audio Zones',j.rooms.filter(r=>['speakers_only','tv_stereo','tv_surround','audio_only'].includes(r.avType)).length],
     ['Surround Rooms',j.rooms.filter(r=>r.avType==='tv_surround').length],
     ['C4 Remotes',j.rooms.filter(r=>r.c4Remote===true).length],
     ['Access Points',j.network.apCount||0],
-    ['Total Cameras',j.cameras.total||0],
-    ['Interior Cams',j.cameras.interior||0],
-    ['Exterior Cams',j.cameras.exterior||0],['',''],
-    ['C4 Processor',PROC_LABELS[j.control.processor]||j.control.processor||''],
+    ['Cameras Total',j.cameras.total||0],
+    ['Interior Cameras',j.cameras.interior||0],
+    ['Exterior Cameras',j.cameras.exterior||0],['',''],
+    ['C4 Processor',PROC_LBL[j.control.processor]||j.control.processor||''],
     ['Sub-Systems',(j.control.subsystems||[]).join(', ')],
     ['Lighting Brand',j.lighting.brand||''],['Lighting Scope',j.lighting.scope||''],
     ['Audio Platform',j.audio.platform||''],['Audio Zones',j.audio.zones||0],['',''],
     ['Walk Notes',j.setup.notes||''],
     ['Export Date',new Date().toLocaleDateString()],
   ];
-  const ws1=XLSX.utils.aoa_to_sheet(sd);
-  ws1['!cols']=[{wch:26},{wch:42}];
+  const ws1=XLSX.utils.aoa_to_sheet(sd); ws1['!cols']=[{wch:26},{wch:44}];
   XLSX.utils.book_append_sheet(wb,ws1,'Summary');
 
-  // ── TAB 2: Rooms
-  const rHdr=['Room','AV Type','TV Size','Wall W"','Wall H"','Mount','Speaker','Surround','Gear','Source','C4 Remote','Ltg KP','Shades','Ceiling','Data Drops','Notes'];
-  const rRows=j.rooms.map(r=>[
-    r.customName||r.name,
-    AV_LABELS[r.avType]||r.avType||'',
+  // Rooms
+  const rH=['Room','AV Type','TV Size','Wall W"','Wall H"','Mount','Speaker','Surround','Gear Location','Source','C4 Remote','Ltg Keypad','Shades','Ceiling Ht','Data Drops','Notes'];
+  const rR=j.rooms.map(r=>[
+    r.customName||r.name, AV_LBL[r.avType]||'',
     r.tv.size==='other'?(r.tv.customSize||'Custom'):(r.tv.size?r.tv.size+'"':''),
-    r.tv.wallW||'', r.tv.wallH||'',
-    r.tv.mountType||'', r.audio.type||'', r.audio.surroundConfig||'',
+    r.tv.wallW||'', r.tv.wallH||'', r.tv.mountType||'',
+    r.audio.type||'', r.audio.surroundConfig||'',
     r.gearLocation==='rack'?'To AV Rack':r.gearLocation||'',
     r.sourceDevice||'',
     r.c4Remote===true?'Yes':r.c4Remote===false?'No':'',
@@ -740,13 +900,12 @@ function exportXL() {
     r.dataDrops===true?'Yes':r.dataDrops===false?'No':'',
     r.notes||''
   ]);
-  const ws2=XLSX.utils.aoa_to_sheet([rHdr,...rRows]);
-  ws2['!cols']=rHdr.map((_,i)=>({wch:i===15?40:15}));
+  const ws2=XLSX.utils.aoa_to_sheet([rH,...rR]); ws2['!cols']=rH.map((_,i)=>({wch:i===15?42:15}));
   XLSX.utils.book_append_sheet(wb,ws2,'Rooms');
 
-  // ── TAB 3: Systems
+  // Systems
   const sys=[
-    ['CONTROL4',''],['Processor',PROC_LABELS[j.control.processor]||j.control.processor||''],
+    ['CONTROL4',''],['Processor',PROC_LBL[j.control.processor]||j.control.processor||''],
     ['Sub-Systems',(j.control.subsystems||[]).join(', ')],['',''],
     ['LIGHTING',''],['Brand',j.lighting.brand||''],['Scope',j.lighting.scope||''],['',''],
     ['WHOLE-HOME AUDIO',''],['Platform',j.audio.platform||''],['Zones',j.audio.zones||0],['',''],
@@ -754,62 +913,43 @@ function exportXL() {
     ['Landscape Zones',j.outdoor.zones||0],['Pool/Spa',j.outdoor.poolSpa?'Yes':'No'],
     ['Outdoor TV',j.outdoor.outdoorTv?'Yes':'No'],
   ];
-  const ws3=XLSX.utils.aoa_to_sheet(sys);
-  ws3['!cols']=[{wch:22},{wch:38}];
+  const ws3=XLSX.utils.aoa_to_sheet(sys); ws3['!cols']=[{wch:22},{wch:38}];
   XLSX.utils.book_append_sheet(wb,ws3,'Systems');
 
-  // ── TAB 4: Network
-  const net=[
-    ['NETWORK',''],['AP Count',j.network.apCount||0],
-    ['Switch Size',j.network.switchSize||''],
-    ['NVR',j.network.nvr?'Yes':'No'],['UPS',j.network.ups?'Yes':'No'],
-    ['Notes',j.network.notes||''],
-  ];
-  const ws4=XLSX.utils.aoa_to_sheet(net);
-  ws4['!cols']=[{wch:18},{wch:40}];
+  // Network
+  const net=[['NETWORK',''],['AP Count',j.network.apCount||0],['Switch Size',j.network.switchSize||''],['NVR',j.network.nvr?'Yes':'No'],['UPS',j.network.ups?'Yes':'No'],['Notes',j.network.notes||'']];
+  const ws4=XLSX.utils.aoa_to_sheet(net); ws4['!cols']=[{wch:18},{wch:42}];
   XLSX.utils.book_append_sheet(wb,ws4,'Network');
 
-  // ── TAB 5: Cameras
-  const cam=[
-    ['CAMERAS',''],['Total',j.cameras.total||0],
-    ['Interior',j.cameras.interior||0],['Exterior',j.cameras.exterior||0],
-    ['Coverage Areas',(j.cameras.areas||[]).join(', ')],
-    ['Notes',j.cameras.notes||''],
-  ];
-  const ws5=XLSX.utils.aoa_to_sheet(cam);
-  ws5['!cols']=[{wch:18},{wch:40}];
+  // Cameras
+  const cam=[['CAMERAS',''],['Total',j.cameras.total||0],['Interior',j.cameras.interior||0],['Exterior',j.cameras.exterior||0],['Coverage Areas',(j.cameras.areas||[]).join(', ')],['Notes',j.cameras.notes||'']];
+  const ws5=XLSX.utils.aoa_to_sheet(cam); ws5['!cols']=[{wch:18},{wch:42}];
   XLSX.utils.book_append_sheet(wb,ws5,'Cameras');
 
-  // ── TAB 6: AI Data
-  const ws6=XLSX.utils.aoa_to_sheet([['AI_DATA_JSON (paste directly to Diamond Dog)'],[JSON.stringify(j,null,2)]]);
+  // AI Data
+  const ws6=XLSX.utils.aoa_to_sheet([['AI_DATA — paste directly to Diamond Dog'],[JSON.stringify(j,null,2)]]);
   ws6['!cols']=[{wch:120}];
   XLSX.utils.book_append_sheet(wb,ws6,'AI Data');
 
-  const fname=`JobWalk_${(j.client.name||'Client').replace(/[^a-zA-Z0-9]/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`;
-  XLSX.writeFile(wb,fname);
+  XLSX.writeFile(wb,`JobWalk_${(j.client.name||'Client').replace(/[^a-zA-Z0-9]/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
 function exportJSON() {
-  const j=job();
-  const blob=new Blob([JSON.stringify(j,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url;
-  a.download=`JobWalk_${(j.client.name||'Client').replace(/[^a-zA-Z0-9]/g,'_')}_${new Date().toISOString().slice(0,10)}.json`;
-  a.click(); URL.revokeObjectURL(url);
+  const j=job(), b=new Blob([JSON.stringify(j,null,2)],{type:'application/json'});
+  const u=URL.createObjectURL(b), a=document.createElement('a');
+  a.href=u; a.download=`JobWalk_${(j.client.name||'Client').replace(/[^a-zA-Z0-9]/g,'_')}_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(u);
 }
 
-// ═══════════════════════════════════════════
-//  RENDER ROUTER
-// ═══════════════════════════════════════════
+// ─── ROUTER ───
 function render() {
   const app=document.getElementById('app');
-  if(S.screen==='home') app.innerHTML=renderHome();
+  if(S.screen==='home')        app.innerHTML=renderHome();
   else if(S.screen==='picker') app.innerHTML=renderPicker();
   else if(S.screen==='room-editor') app.innerHTML=renderRoomEditor();
-  else if(S.screen==='job') app.innerHTML=renderJob();
+  else if(S.screen==='job')    app.innerHTML=renderJob();
 }
 
-// ── INIT ──
 hydrate(); render();
 </script>
 </body>
