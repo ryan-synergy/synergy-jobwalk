@@ -10,20 +10,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
-      --ink:      #0e1117;
-      --ink-2:    #1c2333;
-      --ink-3:    #374151;
-      --ink-4:    #6b7280;
-      --ink-5:    #9ca3af;
-      --line:     #e5e7eb;
-      --line-2:   #f3f4f6;
-      --bg:       #f2f3f6;
-      --surface:  #ffffff;
-      --brand:    #d9551a;
-      --brand-lt: #fef3ee;
-      --green:    #16a34a;
-      --blue:     #1d4ed8;
-      --danger:   #dc2626;
+      --ink:      #1c1510;
+      --ink-2:    #2e2720;
+      --ink-3:    #4a433c;
+      --ink-4:    #7a726a;
+      --ink-5:    #a8a098;
+      --line:     #e4ddd5;
+      --line-2:   #ede8e1;
+      --bg:       #ece7df;
+      --surface:  #faf8f5;
+      --surface-2:#f4f0eb;
+      --brand:    #c96828;
+      --brand-lt: #fdf2e8;
+      --green:    #2d7a4f;
+      --blue:     #2c5282;
+      --danger:   #c0392b;
       --r:        10px;
       --safe-t:   env(safe-area-inset-top, 0px);
       --safe-b:   env(safe-area-inset-bottom, 0px);
@@ -44,12 +45,12 @@
 
     /* ─── HEADER ─── */
     .hdr {
-      background: var(--ink);
+      background: #27201a;
       padding: 13px 18px;
       padding-top: calc(13px + var(--safe-t));
       display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 300;
-      border-bottom: 1px solid rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.05);
     }
     .hdr-title { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: -.01em; }
     .hdr-btn {
@@ -68,6 +69,7 @@
       display: flex;
       padding-bottom: var(--safe-b);
       z-index: 300;
+      box-shadow: 0 -1px 0 var(--line);
     }
     .bnav-tab {
       flex: 1; display: flex; flex-direction: column; align-items: center;
@@ -93,6 +95,7 @@
       border: 1px solid var(--line);
       margin-bottom: 10px;
       overflow: hidden;
+      box-shadow: 0 1px 3px rgba(60,40,20,.06);
     }
     .card-hd {
       padding: 13px 16px 0;
@@ -141,8 +144,9 @@
       transition: all .12s; white-space: nowrap; line-height: 1;
     }
     .chip.on {
-      background: var(--ink); border-color: var(--ink);
-      color: #fff; font-weight: 600;
+      background: var(--brand-lt);
+      border-color: var(--brand);
+      color: var(--brand); font-weight: 600;
     }
 
     /* ─── COUNTER ─── */
@@ -152,8 +156,8 @@
       overflow: hidden; background: var(--surface);
     }
     .ctr-btn {
-      width: 44px; border: none; background: var(--line-2);
-      font-size: 20px; font-weight: 400; color: var(--ink-3);
+      width: 44px; border: none; background: var(--surface-2);
+      font-size: 20px; font-weight: 400; color: var(--ink-4);
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       transition: background .1s; user-select: none;
     }
@@ -230,7 +234,7 @@
 
     /* ─── HOME ─── */
     .home-top {
-      background: var(--ink);
+      background: #27201a;
       padding: 40px 22px 30px;
       padding-top: calc(40px + var(--safe-t));
     }
@@ -299,14 +303,14 @@
     .pick-group {
       font-size: 10px; font-weight: 700; text-transform: uppercase;
       letter-spacing: .08em; color: var(--ink-5);
-      padding: 16px 16px 6px; background: var(--line-2);
+      padding: 16px 16px 6px; background: var(--surface-2);
       border-top: 1px solid var(--line);
     }
     .pick-group:first-child { border-top: none; }
 
     /* ─── EXPORT STATS ─── */
     .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
-    .stat-box { background: var(--line-2); border-radius: 8px; padding: 13px 10px; text-align: center; border: 1px solid var(--line); }
+    .stat-box { background: var(--surface-2); border-radius: 8px; padding: 13px 10px; text-align: center; border: 1px solid var(--line); }
     .stat-n { font-size: 26px; font-weight: 800; color: var(--ink); line-height: 1; letter-spacing: -.02em; }
     .stat-l { font-size: 10.5px; color: var(--ink-4); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-top: 4px; }
 
